@@ -6,6 +6,11 @@ class StatementSchema(BaseModel):
     summary: str
 
 
+class DebateSchema(BaseModel):
+    argument: str
+    targeted_factions: list[str] = []
+
+
 class AmendmentSchema(BaseModel):
     change_summary: str
     rationale: str

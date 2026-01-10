@@ -78,6 +78,8 @@ Deploy a Gemini-based AI assistant for all students to:
     # Phase: Statements
     # -------------------------
     print("\n--- FACTION STATEMENTS ---\n")
+    
+    speaker.advance_phase()  # Move to FACTION_STATEMENTS
 
     statements = {}
     for agent in agents:
@@ -86,9 +88,56 @@ Deploy a Gemini-based AI assistant for all students to:
         print(f"[{agent.name}] {stmt}")
 
     # -------------------------
+    # Phase: Debate (Speaker-mediated persuasion)
+    # -------------------------
+    print("\n--- DEBATE PHASE ---\n")
+    
+    speaker.advance_phase()  # Move to DEBATE
+    
+    # Speaker establishes turn order
+    faction_names = [agent.name for agent in agents]
+    speaker.set_debate_order(faction_names)
+    
+    all_debate_arguments = []
+    
+    for debate_round in range(1, speaker.max_debate_rounds + 1):
+        print(f"\n>>> Debate Round {debate_round} <<<")
+        print(f"Speaker mediates turn order: {' → '.join(speaker.debate_order)}\n")
+        
+        round_arguments = []
+        
+        # Each faction speaks in order determined by Speaker
+        for faction_name in speaker.debate_order:
+            agent = next(a for a in agents if a.name == faction_name)
+            
+            argument = agent.debate(
+                bill=bill,
+                round_number=debate_round,
+                all_factions=faction_names,
+                previous_arguments=all_debate_arguments
+            )
+            
+            if argument:
+                round_arguments.append(argument)
+                all_debate_arguments.append(argument)
+                
+                target_msg = f" → [{', '.join(argument.targeted_factions)}]" if argument.targeted_factions else " → [All Factions]"
+                print(f"[{agent.name}]{target_msg}")
+                print(f"  {argument.argument}\n")
+            else:
+                print(f"[{agent.name}] passes this round.\n")
+        
+        # Check if we should continue debate
+        if debate_round < speaker.max_debate_rounds:
+            if not speaker.next_debate_round():
+                break
+
+    # -------------------------
     # Phase: Amendments
     # -------------------------
     print("\n--- AMENDMENTS ---\n")
+    
+    speaker.advance_phase()  # Move to AMENDMENTS
 
     all_amendments = []
 
@@ -107,6 +156,8 @@ Deploy a Gemini-based AI assistant for all students to:
     # Phase: Voting
     # -------------------------
     print("\n--- VOTING ---\n")
+    
+    speaker.advance_phase()  # Move to VOTING
 
     votes = []
     for agent in agents:

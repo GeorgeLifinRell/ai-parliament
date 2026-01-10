@@ -10,3 +10,4 @@ wheels/
 .venv
 
 .env
+.github/copilot-instructions.md
