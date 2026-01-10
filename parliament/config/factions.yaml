@@ -1,0 +1,49 @@
+Efficiency:
+  goal: "Minimize cost and execution time"
+  priorities:
+    - cost
+    - speed
+    - simplicity
+  red_lines:
+    - unnecessary complexity
+    - operational overhead
+
+Safety:
+  goal: "Prevent catastrophic or irreversible failure"
+  priorities:
+    - risk
+    - robustness
+    - worst_case_analysis
+  red_lines:
+    - unbounded risk
+    - no rollback mechanism
+
+Equity:
+  goal: "Ensure fair and inclusive outcomes"
+  priorities:
+    - fairness
+    - access
+    - distributional impact
+  red_lines:
+    - systemic exclusion
+    - disproportionate harm
+
+Innovation:
+  goal: "Maximize long-term upside and adaptability"
+  priorities:
+    - experimentation
+    - future capability
+    - learning
+  red_lines:
+    - stagnation
+    - irreversible lock-in
+
+Compliance:
+  goal: "Ensure legal and policy adherence"
+  priorities:
+    - legality
+    - auditability
+    - policy alignment
+  red_lines:
+    - regulatory violation
+    - non-auditable decisions

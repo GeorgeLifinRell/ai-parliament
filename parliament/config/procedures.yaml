@@ -1,0 +1,10 @@
+phases:
+  - INTRODUCTION
+  - FACTION_STATEMENTS
+  - AMENDMENTS
+  - VOTING
+  - DECISION
+
+limits:
+  max_rounds: 3
+  max_amendments_per_faction: 2

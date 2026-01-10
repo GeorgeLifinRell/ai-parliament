@@ -1,0 +1,10 @@
+weights:
+  Efficiency: 1.0
+  Safety: 1.5
+  Equity: 1.0
+  Innovation: 0.8
+  Compliance: 1.2
+
+veto_factions:
+  - Safety
+  - Compliance
