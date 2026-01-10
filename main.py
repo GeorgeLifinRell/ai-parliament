@@ -73,6 +73,18 @@ Deploy a Gemini-based AI assistant for all students to:
     ]
 
     speaker = Speaker(bill)
+    
+    # -------------------------
+    # Speaker determines veto power (LLM-backed)
+    # -------------------------
+    print("\n--- SPEAKER AUTHORITY (LLM-Backed) ---\n")
+    
+    # Build ideology dict for Speaker's decision
+    faction_ideologies = {agent.name: agent.ideology for agent in agents}
+    faction_names = [agent.name for agent in agents]
+    
+    veto_factions = speaker.determine_veto_powers(faction_names, faction_ideologies)
+    print(f"Speaker grants veto power to: {', '.join(veto_factions) if veto_factions else 'None'}")
 
     # -------------------------
     # Phase: Statements
@@ -94,9 +106,10 @@ Deploy a Gemini-based AI assistant for all students to:
     
     speaker.advance_phase()  # Move to DEBATE
     
-    # Speaker establishes turn order
+    # Speaker strategically determines debate order (LLM-backed)
     faction_names = [agent.name for agent in agents]
-    speaker.set_debate_order(faction_names)
+    debate_order = speaker.determine_debate_order(faction_names, statements)
+    speaker.set_debate_order(debate_order)
     
     all_debate_arguments = []
     
@@ -172,7 +185,8 @@ Deploy a Gemini-based AI assistant for all students to:
     # -------------------------
     print("\n--- FINAL DECISION ---\n")
 
-    engine = VotingEngine(veto_factions={"Safety", "Compliance"})
+    # Use Speaker's veto assignments
+    engine = VotingEngine(veto_factions=speaker.get_veto_factions())
     decision = engine.evaluate(bill, votes)
 
     print(f"Bill Passed: {decision.passed}")
