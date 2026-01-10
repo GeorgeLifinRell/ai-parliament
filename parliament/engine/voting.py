@@ -1,7 +1,8 @@
 from parliament.core.vote import Vote, VoteChoice
-from parliament.engine.decision import Decision
+from parliament.core.decision import Decision
 from parliament.core.bill import Bill
-from uuid import UUID
+from uuid import uuid4
+from datetime import datetime
 
 
 class VotingEngine:
@@ -20,7 +21,7 @@ class VotingEngine:
 
         approve_weight = 0.0
         reject_weight = 0.0
-        abstentions = 0
+        abstain_weight = 0.0
         vetoed_by: list[str] = []
 
         for vote in votes:
@@ -46,20 +47,30 @@ class VotingEngine:
             elif vote.choice == VoteChoice.REJECT:
                 reject_weight += vote.weight
             elif vote.choice == VoteChoice.ABSTAIN:
-                abstentions += 1
+                abstain_weight += vote.weight
 
         # ---- Final decision ----
         if vetoed_by:
             passed = False
+            summary = f"Bill REJECTED - Vetoed by: {', '.join(vetoed_by)}"
+        elif approve_weight > reject_weight:
+            passed = True
+            summary = f"Bill PASSED - Approve: {approve_weight}, Reject: {reject_weight}"
         else:
-            passed = approve_weight > reject_weight
+            passed = False
+            summary = f"Bill REJECTED - Approve: {approve_weight}, Reject: {reject_weight}"
 
         return Decision(
+            id=uuid4(),
             bill_id=bill.id,
             bill_version=bill.version,
+            bill_title=bill.title,
             passed=passed,
-            approve_weight=approve_weight,
-            reject_weight=reject_weight,
-            abstentions=abstentions,
-            vetoed_by=vetoed_by
+            total_approve_weight=approve_weight,
+            total_reject_weight=reject_weight,
+            total_abstain_weight=abstain_weight,
+            votes=votes,
+            vetoed_by=vetoed_by,
+            decided_at=datetime.now(),
+            decision_summary=summary
         )

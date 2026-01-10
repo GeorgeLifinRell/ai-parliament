@@ -125,9 +125,10 @@ Deploy a Gemini-based AI assistant for all students to:
     decision = engine.evaluate(bill, votes)
 
     print(f"Bill Passed: {decision.passed}")
-    print(f"Approve Weight: {decision.approve_weight}")
-    print(f"Reject Weight: {decision.reject_weight}")
-    print(f"Abstentions: {decision.abstentions}")
+    print(f"Approve Weight: {decision.total_approve_weight}")
+    print(f"Reject Weight: {decision.total_reject_weight}")
+    print(f"Abstain Weight: {decision.total_abstain_weight}")
+    print(f"Summary: {decision.decision_summary}")
 
     if decision.vetoed_by:
         print(f"Vetoed By: {decision.vetoed_by}")
