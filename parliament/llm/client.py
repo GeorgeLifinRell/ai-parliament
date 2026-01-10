@@ -1,15 +1,25 @@
 import os
 import json
 import re
-from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
 
+def get_client_from(provider: str = "cerebras"):
+    if provider == "google":
+        from google import genai
+        return genai.Client(api_key=os.environ["GEMINI_API_KEY"]), "gemini-2.0-flash"
+    elif provider == "cerebras":
+        from langchain_cerebras import ChatCerebras
+        return ChatCerebras(
+            model="llama-3.3-70b",
+            api_key=os.environ.get("CEREBRAS_API_KEY")
+        ), "llama-3.3-70b"
+
 class LLMClient:
-    def __init__(self, model="gemini-2.0-flash"):
-        self.client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
-        self.model = model
+    def __init__(self, provider="cerebras"):
+        self.client, self.model = get_client_from(provider)
+        self.provider = provider
 
     def _extract_json(self, text: str) -> str:
         """
@@ -33,9 +43,10 @@ class LLMClient:
         last_error = None
 
         for attempt in range(retries + 1):
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=f"""
+            if self.provider == "google":
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=f"""
 SYSTEM:
 {system_prompt}
 
@@ -47,11 +58,29 @@ IMPORTANT:
 - No markdown
 - No ``` fences
 - No commentary
-- Output must be directly parseable by json.loads
+- Output must be directly parsable by json.loads
 """
-            )
+                )
+                raw_text = response.text.strip()
+                
+            elif self.provider == "cerebras":
+                # LangChain ChatCerebras uses messages format
+                messages = [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"""
+{user_prompt}
 
-            raw_text = response.text.strip()
+IMPORTANT:
+- You must respond ONLY with valid JSON
+- No markdown
+- No ``` fences
+- No commentary
+- Output must be directly parseable by json.loads
+"""}
+                ]
+                response = self.client.invoke(messages)
+                raw_text = response.content.strip()
+
             cleaned = self._extract_json(raw_text)
 
             try:
