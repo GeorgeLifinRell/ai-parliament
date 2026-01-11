@@ -11,6 +11,11 @@ from parliament.agents.equity import EquityAgent
 from parliament.agents.innovation import InnovationAgent
 from parliament.agents.compliance import ComplianceAgent
 
+from parliament.utils.colors import (
+    header, faction_colored, vote_colored, decision_colored,
+    colored, Colors
+)
+
 
 # -------------------------
 # Load faction ideologies
@@ -26,7 +31,7 @@ def load_factions():
 # -------------------------
 
 def run_parliament_simulation():
-    print("\n=== AI PARLIAMENT SIMULATION ===\n")
+    print(header("🏛️  AI PARLIAMENT SIMULATION  🏛️", style="main"))
 
     factions = load_factions()
 
@@ -60,8 +65,9 @@ Deploy a Gemini-based AI assistant for all students to:
         status=BillStatus.DRAFT
     )
 
-    print(f"Bill: {bill.title}")
-    print("-" * 60)
+    print(colored("📜 Bill on the Floor:", Colors.BRIGHT_WHITE, bold=True))
+    print(colored(f"   {bill.title}", Colors.BRIGHT_CYAN, bold=True))
+    print(colored("─" * 60, Colors.DIM))
 
     # Agents
     agents = [
@@ -77,19 +83,23 @@ Deploy a Gemini-based AI assistant for all students to:
     # -------------------------
     # Speaker determines veto power (LLM-backed)
     # -------------------------
-    print("\n--- SPEAKER AUTHORITY (LLM-Backed) ---\n")
+    print(header("⚖️  SPEAKER AUTHORITY (LLM-Backed)", style="section"))
     
     # Build ideology dict for Speaker's decision
     faction_ideologies = {agent.name: agent.ideology for agent in agents}
     faction_names = [agent.name for agent in agents]
     
     veto_factions = speaker.determine_veto_powers(faction_names, faction_ideologies)
-    print(f"Speaker grants veto power to: {', '.join(veto_factions) if veto_factions else 'None'}")
+    if veto_factions:
+        veto_display = ', '.join([faction_colored(f, f, bold=True) for f in veto_factions])
+        print(f"🔨 Speaker grants veto power to: {veto_display}\n")
+    else:
+        print(colored("🔨 Speaker grants veto power to: None", Colors.DIM) + "\n")
 
     # -------------------------
     # Phase: Statements
     # -------------------------
-    print("\n--- FACTION STATEMENTS ---\n")
+    print(header("💬 FACTION STATEMENTS", style="section"))
     
     speaker.advance_phase()  # Move to FACTION_STATEMENTS
 
@@ -97,12 +107,13 @@ Deploy a Gemini-based AI assistant for all students to:
     for agent in agents:
         stmt = agent.statement(bill)
         statements[agent.name] = stmt
-        print(f"[{agent.name}] {stmt}")
+        faction_name = faction_colored(agent.name, f"[{agent.name}]", bold=True)
+        print(f"{faction_name} {stmt}\n")
 
     # -------------------------
     # Phase: Debate (Speaker-mediated persuasion)
     # -------------------------
-    print("\n--- DEBATE PHASE ---\n")
+    print(header("🗣️  DEBATE PHASE", style="section"))
     
     speaker.advance_phase()  # Move to DEBATE
     
@@ -114,8 +125,10 @@ Deploy a Gemini-based AI assistant for all students to:
     all_debate_arguments = []
     
     for debate_round in range(1, speaker.max_debate_rounds + 1):
-        print(f"\n>>> Debate Round {debate_round} <<<")
-        print(f"Speaker mediates turn order: {' → '.join(speaker.debate_order)}\n")
+        print(header(f"Debate Round {debate_round}", style="subsection"))
+        
+        order_display = ' → '.join([faction_colored(f, f, bold=True) for f in speaker.debate_order])
+        print(colored("Speaker mediates turn order: ", Colors.BRIGHT_WHITE) + order_display + "\n")
         
         round_arguments = []
         
@@ -134,11 +147,19 @@ Deploy a Gemini-based AI assistant for all students to:
                 round_arguments.append(argument)
                 all_debate_arguments.append(argument)
                 
-                target_msg = f" → [{', '.join(argument.targeted_factions)}]" if argument.targeted_factions else " → [All Factions]"
-                print(f"[{agent.name}]{target_msg}")
-                print(f"  {argument.argument}\n")
+                speaker_label = faction_colored(agent.name, f"[{agent.name}]", bold=True)
+                
+                if argument.targeted_factions:
+                    targets = ', '.join([faction_colored(t, t) for t in argument.targeted_factions])
+                    target_msg = colored(" → ", Colors.DIM) + f"[{targets}]"
+                else:
+                    target_msg = colored(" → ", Colors.DIM) + colored("[All Factions]", Colors.WHITE)
+                
+                print(f"{speaker_label}{target_msg}")
+                print(colored(f"  {argument.argument}", Colors.WHITE) + "\n")
             else:
-                print(f"[{agent.name}] passes this round.\n")
+                speaker_label = faction_colored(agent.name, f"[{agent.name}]", bold=True)
+                print(speaker_label + colored(" passes this round.", Colors.DIM) + "\n")
         
         # Check if we should continue debate
         if debate_round < speaker.max_debate_rounds:
@@ -148,7 +169,7 @@ Deploy a Gemini-based AI assistant for all students to:
     # -------------------------
     # Phase: Amendments
     # -------------------------
-    print("\n--- AMENDMENTS ---\n")
+    print(header("✏️  AMENDMENTS", style="section"))
     
     speaker.advance_phase()  # Move to AMENDMENTS
 
@@ -156,19 +177,21 @@ Deploy a Gemini-based AI assistant for all students to:
 
     for agent in agents:
         amendments = agent.propose_amendments(bill)
+        faction_label = faction_colored(agent.name, f"[{agent.name}]", bold=True)
+        
         if amendments:
             for a in amendments:
-                print(f"[{agent.name}] proposes:")
-                print(f"  - {a.change_summary}")
-                print(f"    Reason: {a.rationale}")
+                print(f"{faction_label} {colored('proposes:', Colors.BRIGHT_WHITE)}")
+                print(colored(f"  • {a.change_summary}", Colors.CYAN))
+                print(colored(f"    Reason: {a.rationale}", Colors.DIM) + "\n")
                 all_amendments.append(a)
         else:
-            print(f"[{agent.name}] proposes no amendments.")
+            print(f"{faction_label} {colored('proposes no amendments.', Colors.DIM)}\n")
 
     # -------------------------
     # Phase: Voting
     # -------------------------
-    print("\n--- VOTING ---\n")
+    print(header("🗳️  VOTING", style="section"))
     
     speaker.advance_phase()  # Move to VOTING
 
@@ -177,28 +200,31 @@ Deploy a Gemini-based AI assistant for all students to:
         vote = agent.vote(bill, all_amendments)
         votes.append(vote)
 
-        print(f"[{agent.name}] votes: {vote.choice}")
-        print(f"  Justification: {vote.justification}")
+        faction_label = faction_colored(agent.name, f"[{agent.name}]", bold=True)
+        vote_display = vote_colored(vote.choice.value)
+        print(f"{faction_label} votes: {vote_display}")
+        print(colored(f"  Justification: {vote.justification}", Colors.DIM) + "\n")
 
     # -------------------------
     # Final Decision
     # -------------------------
-    print("\n--- FINAL DECISION ---\n")
+    print(header("⚖️  FINAL DECISION", style="section"))
 
     # Use Speaker's veto assignments
     engine = VotingEngine(veto_factions=speaker.get_veto_factions())
     decision = engine.evaluate(bill, votes)
 
-    print(f"Bill Passed: {decision.passed}")
-    print(f"Approve Weight: {decision.total_approve_weight}")
-    print(f"Reject Weight: {decision.total_reject_weight}")
-    print(f"Abstain Weight: {decision.total_abstain_weight}")
-    print(f"Summary: {decision.decision_summary}")
+    print(colored("Bill Status: ", Colors.BRIGHT_WHITE, bold=True) + decision_colored(decision.passed))
+    print(colored(f"Approve Weight: ", Colors.GREEN) + colored(str(decision.total_approve_weight), Colors.BRIGHT_GREEN, bold=True))
+    print(colored(f"Reject Weight: ", Colors.RED) + colored(str(decision.total_reject_weight), Colors.BRIGHT_RED, bold=True))
+    print(colored(f"Abstain Weight: ", Colors.YELLOW) + colored(str(decision.total_abstain_weight), Colors.BRIGHT_YELLOW, bold=True))
+    print(colored(f"\n{decision.decision_summary}", Colors.BRIGHT_WHITE))
 
     if decision.vetoed_by:
-        print(f"Vetoed By: {decision.vetoed_by}")
+        veto_display = ', '.join([faction_colored(f, f, bold=True) for f in decision.vetoed_by])
+        print(colored(f"\n🚫 Vetoed By: ", Colors.BRIGHT_RED, bold=True) + veto_display)
 
-    print("\n=== END OF SESSION ===\n")
+    print(header("SESSION CONCLUDED", style="main"))
 
 
 if __name__ == "__main__":

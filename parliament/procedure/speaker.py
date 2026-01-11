@@ -4,6 +4,13 @@ from parliament.llm.client import LLMClient
 from parliament.llm.speaker_schemas import DebateOrderSchema, VetoPowerSchema
 
 
+# ANSI color codes for Speaker messages
+SPEAKER_COLOR = '\033[97m'  # Bright white
+RESET = '\033[0m'
+BOLD = '\033[1m'
+DIM = '\033[2m'
+
+
 class Phase(str, Enum):
     INTRODUCTION = "INTRODUCTION"
     FACTION_STATEMENTS = "FACTION_STATEMENTS"
@@ -147,14 +154,14 @@ Return JSON:
             
             # Validate all factions are included
             if set(parsed.faction_order) != set(faction_names):
-                print(f"[Speaker] LLM provided invalid faction order, using default")
+                print(f"{DIM}[Speaker] LLM provided invalid faction order, using default{RESET}")
                 return faction_names
             
-            print(f"[Speaker] Debate order reasoning: {parsed.reasoning}")
+            print(f"{SPEAKER_COLOR}{BOLD}[Speaker]{RESET} {DIM}Debate order reasoning: {parsed.reasoning}{RESET}")
             return parsed.faction_order
             
         except Exception as e:
-            print(f"[Speaker] LLM failed to determine debate order, using default: {e}")
+            print(f"{DIM}[Speaker] LLM failed to determine debate order, using default: {e}{RESET}")
             return faction_names
 
     def next_debate_round(self) -> bool:
@@ -256,12 +263,12 @@ Return JSON:
             # Validate factions exist
             invalid = set(parsed.factions_with_veto) - set(faction_names)
             if invalid:
-                print(f"[Speaker] LLM suggested invalid factions for veto: {invalid}, ignoring")
+                print(f"{DIM}[Speaker] LLM suggested invalid factions for veto: {invalid}, ignoring{RESET}")
                 valid_vetos = set(parsed.factions_with_veto) - invalid
             else:
                 valid_vetos = set(parsed.factions_with_veto)
             
-            print(f"[Speaker] Veto power reasoning: {parsed.reasoning}")
+            print(f"{SPEAKER_COLOR}{BOLD}[Speaker]{RESET} {DIM}Veto power reasoning: {parsed.reasoning}{RESET}")
             
             # Apply veto assignments
             for faction in valid_vetos:
@@ -270,5 +277,5 @@ Return JSON:
             return valid_vetos
             
         except Exception as e:
-            print(f"[Speaker] LLM failed to determine veto powers, assigning none: {e}")
+            print(f"{DIM}[Speaker] LLM failed to determine veto powers, assigning none: {e}{RESET}")
             return set()
