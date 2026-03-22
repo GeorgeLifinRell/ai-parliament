@@ -63,8 +63,8 @@ def make_decision(bill: Bill, votes: list[Vote]) -> Decision:
     )
 
 
-def make_store(tmpdir: str) -> SessionStore:
-    return SessionStore(db_path=Path(tmpdir) / "test.db")
+def make_store(tmp_path: Path) -> SessionStore:
+    return SessionStore(db_path=tmp_path / "test.db")
 
 
 # ---- SessionStore ----

@@ -59,8 +59,9 @@ class PrecedentStore:
 
     def record(self, bill_proposal: str, decision: Decision) -> None:
         """Record a completed decision as a precedent entry."""
-        snippet = bill_proposal.strip()[:200]
-        if len(bill_proposal.strip()) > 200:
+        proposal_stripped = bill_proposal.strip()
+        snippet = proposal_stripped[:200]
+        if len(proposal_stripped) > 200:
             snippet += "…"
 
         entry = PrecedentEntry(

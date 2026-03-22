@@ -73,6 +73,11 @@ def apply_accepted_amendments(bill: Bill, amendments: list[Amendment]) -> tuple[
     """
     Apply all ACCEPTED amendments to the bill sequentially.
 
+    Each ACCEPTED amendment is applied in order. Because ``apply_amendment``
+    increments the bill version, consecutive amendments must target the version
+    produced by the previous application. Only amendments that were already set
+    to ACCEPTED before calling this function are applied; others are skipped.
+
     Returns:
         (updated_bill, list_of_accepted_amendments)
     """

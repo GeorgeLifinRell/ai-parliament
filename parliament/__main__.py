@@ -63,7 +63,7 @@ def cmd_run(args: argparse.Namespace) -> int:
             print(f"[ERROR] Bill file not found: {bill_path}", file=sys.stderr)
             return 1
         bills = [load_bill_from_yaml(bill_path)]
-    elif args.bills_dir:
+    else:
         bills_dir = Path(args.bills_dir)
         if not bills_dir.is_dir():
             print(f"[ERROR] Bills directory not found: {bills_dir}", file=sys.stderr)
@@ -72,9 +72,6 @@ def cmd_run(args: argparse.Namespace) -> int:
         if not bills:
             print(f"[ERROR] No YAML bills found in {bills_dir}", file=sys.stderr)
             return 1
-    else:
-        print("[ERROR] Provide --bill <file> or --bills-dir <dir>", file=sys.stderr)
-        return 1
 
     agents = _build_agents(factions)
     db_path = Path(args.db) if args.db else Path("parliament_sessions.db")
@@ -149,7 +146,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # ---- run ----
     run_parser = subparsers.add_parser("run", help="Run a parliament session")
-    bill_group = run_parser.add_mutually_exclusive_group()
+    bill_group = run_parser.add_mutually_exclusive_group(required=True)
     bill_group.add_argument("--bill", metavar="PATH", help="Path to a single bill YAML file")
     bill_group.add_argument(
         "--bills-dir", metavar="DIR", help="Directory of bill YAML files to process in order"

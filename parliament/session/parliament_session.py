@@ -238,8 +238,8 @@ class ParliamentSession:
             try:
                 log_path = export_audit_log(session_id, self.store, output_dir=self.log_dir)
                 print(colored(f"\n📋 Audit log written to: {log_path}", Colors.DIM))
-            except Exception:
-                pass
+            except Exception as exc:
+                print(colored(f"\n⚠️  Audit log export failed: {exc}", Colors.BRIGHT_YELLOW))
 
         print(header("SESSION CONCLUDED", style="main"))
         return decision

@@ -55,5 +55,7 @@ def load_bills_from_dir(directory: str | Path) -> list[Bill]:
         List of Bills.
     """
     directory = Path(directory)
-    bill_files = sorted(directory.glob("*.yaml")) + sorted(directory.glob("*.yml"))
+    bill_files = sorted(
+        list(directory.glob("*.yaml")) + list(directory.glob("*.yml"))
+    )
     return [load_bill_from_yaml(f) for f in bill_files]
