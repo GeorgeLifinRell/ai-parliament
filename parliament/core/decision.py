@@ -11,7 +11,7 @@ class Decision(BaseModel):
     Design principles:
     - Immutable record of parliamentary outcome
     - Contains all votes that led to the decision
-    - Tracks veto power usage
+    - Tracks veto power usage and faction coalitions
     - Auditable and explainable
     """
 
@@ -25,6 +25,7 @@ class Decision(BaseModel):
     total_abstain_weight: float
     votes: list[Vote]
     vetoed_by: list[str] = []  # List of faction names that used veto power
+    coalitions: dict[str, list[str]] = {}  # choice -> list of faction names
     decided_at: datetime
     decision_summary: str
 

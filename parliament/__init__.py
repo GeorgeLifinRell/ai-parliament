@@ -13,6 +13,7 @@ from .core import (
     VoteChoice,
     Decision,
 )
+from .core.amendment import AmendmentStatus
 
 # Agents (LLM-powered faction agents)
 from .agents.base import BaseFactionAgent
@@ -28,22 +29,32 @@ from .procedure.speaker import Speaker, Phase
 
 # Voting engine (mechanical aggregation)
 from .engine.voting import VotingEngine
+from .engine.amendments import accept_amendment, reject_amendment, apply_amendment
+
+# Session orchestration
+from .session.parliament_session import ParliamentSession
+
+# Storage
+from .storage.session_store import SessionStore
+from .storage.precedent_store import PrecedentStore
+from .storage.audit_log import export_audit_log
 
 # LLM layer (robust client)
 from .llm.client import LLMClient
 from .llm.schemas import StatementSchema, AmendmentSchema, VoteSchema
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     # Core models
     "Bill",
     "BillStatus",
     "Amendment",
+    "AmendmentStatus",
     "Vote",
     "VoteChoice",
     "Decision",
-    
+
     # Agents
     "BaseFactionAgent",
     "LLMFactionAgent",
@@ -52,14 +63,25 @@ __all__ = [
     "EquityAgent",
     "InnovationAgent",
     "ComplianceAgent",
-    
+
     # Procedure
     "Speaker",
     "Phase",
-    
+
     # Engine
     "VotingEngine",
-    
+    "accept_amendment",
+    "reject_amendment",
+    "apply_amendment",
+
+    # Session
+    "ParliamentSession",
+
+    # Storage
+    "SessionStore",
+    "PrecedentStore",
+    "export_audit_log",
+
     # LLM
     "LLMClient",
     "StatementSchema",

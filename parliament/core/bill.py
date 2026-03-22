@@ -47,7 +47,7 @@ class Bill(BaseModel):
 
     @field_validator("version")
     @classmethod
-    def version_must_start_at_one(cls, value: int) -> int:
-        if value != 1:
-            raise ValueError("Bill version must start at 1")
+    def version_must_be_positive(cls, value: int) -> int:
+        if value < 1:
+            raise ValueError("Bill version must be a positive integer")
         return value

@@ -1,0 +1,26 @@
+title: "Mandatory Algorithmic Bias Audit for Public Services"
+proposal: |
+  Require all government agencies using AI-driven decision systems
+  (benefits allocation, parole, hiring) to:
+  - Commission annual third-party algorithmic bias audits
+  - Publish audit results publicly within 90 days
+  - Suspend non-compliant systems pending remediation
+
+assumptions:
+  - Accredited auditors with AI expertise are available
+  - Agencies will cooperate with audit requirements
+  - "Algorithmic bias" can be meaningfully measured
+
+intended_outcomes:
+  - Detect and correct discriminatory patterns in public-sector AI
+  - Build public trust through transparency
+  - Create accountability for high-stakes automated decisions
+
+known_risks:
+  - Audit methodology may be contested or gamed
+  - Compliance costs may be prohibitive for smaller agencies
+  - Publication of audit results could expose security vulnerabilities
+
+unknowns:
+  - Whether audit standards will converge across jurisdictions
+  - Long-term effect on public-sector AI adoption

@@ -1,10 +1,22 @@
 """
 Test debate functionality
 """
+from unittest.mock import MagicMock
 from uuid import uuid4
 from parliament.core.bill import Bill, BillStatus
 from parliament.core.debate import DebateArgument
 from parliament.procedure.speaker import Speaker, Phase
+
+
+def _make_speaker(bill: Bill) -> Speaker:
+    """Return a Speaker with a mocked LLM so no network calls are made."""
+    mock_llm = MagicMock()
+    mock_llm.generate_json.return_value = {
+        "faction_order": [],
+        "factions_with_veto": [],
+        "reasoning": "mocked",
+    }
+    return Speaker(bill, llm=mock_llm)
 
 
 def test_debate_argument_creation():
@@ -38,7 +50,9 @@ def test_speaker_debate_phase():
         status=BillStatus.DRAFT
     )
     
-    speaker = Speaker(bill, max_debate_rounds=2)
+    speaker = _make_speaker(bill)
+    speaker.bill = bill
+    speaker.max_debate_rounds = 2
     
     # Initially should be in INTRODUCTION
     assert speaker.phase == Phase.INTRODUCTION

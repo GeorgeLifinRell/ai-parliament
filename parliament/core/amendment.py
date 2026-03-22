@@ -1,5 +1,13 @@
+from enum import Enum
 from uuid import UUID
-from pydantic import BaseModel, Field, field_validator, model_validator, ConfigDict
+from pydantic import BaseModel, field_validator, model_validator, ConfigDict
+
+
+class AmendmentStatus(str, Enum):
+    """Lifecycle status of an amendment proposal."""
+    PENDING = "PENDING"
+    ACCEPTED = "ACCEPTED"
+    REJECTED = "REJECTED"
 
 
 class Amendment(BaseModel):
@@ -9,7 +17,7 @@ class Amendment(BaseModel):
     Design principles:
     - Immutable after creation
     - References a specific bill version
-    - Cannot decide its own acceptance
+    - Status starts as PENDING; accepted/rejected copies are created via model_copy()
     """
 
     id: UUID
@@ -18,7 +26,7 @@ class Amendment(BaseModel):
     proposer_faction: str
     change_summary: str
     rationale: str
-    accepted: bool | None = None
+    status: AmendmentStatus = AmendmentStatus.PENDING
 
     model_config = ConfigDict(
         frozen=True,
@@ -36,9 +44,10 @@ class Amendment(BaseModel):
 
     # ---- Model-level validation ----
     @model_validator(mode="after")
-    def forbid_premature_decision(self):
-        if self.accepted is not None:
+    def status_must_be_pending_at_creation(self):
+        if self.status != AmendmentStatus.PENDING:
             raise ValueError(
-                "Amendment cannot be accepted or rejected at creation time"
+                "Amendment status must be PENDING at creation time; "
+                "use model_copy(update={'status': ...}) to advance the lifecycle"
             )
         return self

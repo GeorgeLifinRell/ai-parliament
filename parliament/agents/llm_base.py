@@ -8,14 +8,16 @@ from parliament.core.vote import Vote, VoteChoice
 
 
 class LLMFactionAgent(BaseFactionAgent):
-    def __init__(self, name: str, ideology: dict, weight: float):
+    def __init__(self, name: str, ideology: dict, weight: float, llm: LLMClient | None = None):
         super().__init__(name, ideology)
-        self.llm = LLMClient()
+        self.llm = llm if llm is not None else LLMClient()
         self.weight = weight
 
-    def statement(self, bill):
+    def statement(self, bill, precedent_context: str = ""):
         try:
             system = f"You represent the {self.name} faction. Goal: {self.ideology['goal']}"
+            if precedent_context:
+                system += f"\n\n{precedent_context}"
             user = f"""
 Bill:
 {bill.proposal}
@@ -29,7 +31,7 @@ Return JSON:
         except Exception as e:
             return f"[{self.name}] Unable to generate structured statement due to LLM failure."
 
-    def debate(self, bill, round_number: int, all_factions: list[str], previous_arguments: list = None):
+    def debate(self, bill, round_number: int, all_factions: list[str], previous_arguments: list = None, precedent_context: str = ""):
         """
         Generate a debate argument to persuade other factions.
         
@@ -38,6 +40,7 @@ Return JSON:
             round_number: Current debate round
             all_factions: List of all faction names in parliament
             previous_arguments: List of DebateArgument from previous rounds
+            precedent_context: Optional formatted precedent string for LLM context
         
         Returns:
             DebateArgument or None if LLM fails
@@ -55,6 +58,8 @@ Red lines: {self.ideology['red_lines']}
 Your task is to persuade other factions to support (or reject) this bill based on your ideology.
 Make compelling arguments that appeal to other factions' concerns.
 """
+            if precedent_context:
+                system += f"\n\n{precedent_context}"
 
             previous_context = ""
             if previous_arguments and round_number > 1:
@@ -98,9 +103,11 @@ Be strategic and persuasive based on your faction's ideology.
             # Graceful degradation - faction passes on this debate round
             return None
 
-    def propose_amendments(self, bill):
+    def propose_amendments(self, bill, precedent_context: str = ""):
         try:
             system = f"You represent the {self.name} faction."
+            if precedent_context:
+                system += f"\n\n{precedent_context}"
             user = f"""
 Bill:
 {bill.proposal}
@@ -133,7 +140,7 @@ If no amendments needed, return [].
         except Exception as e:
             return []
 
-    def vote(self, bill, amendments):
+    def vote(self, bill, amendments, precedent_context: str = ""):
         try:
             system = f"""
 You are the {self.name} faction.
@@ -144,6 +151,8 @@ Red lines: {self.ideology['red_lines']}
 
 You must vote strictly according to your faction's ideology.
 """
+            if precedent_context:
+                system += f"\n\n{precedent_context}"
 
             user = f"""
 Bill:

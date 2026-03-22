@@ -26,7 +26,7 @@ class Speaker:
     Now backed by LLM for strategic decisions while maintaining procedural authority.
     """
 
-    def __init__(self, bill: Bill, max_debate_rounds: int = 2, max_rounds: int = 3):
+    def __init__(self, bill: Bill, max_debate_rounds: int = 2, max_rounds: int = 3, llm: LLMClient | None = None):
         if bill.status != BillStatus.DRAFT:
             raise ValueError("Only draft bills may enter parliament")
 
@@ -38,7 +38,7 @@ class Speaker:
         self.debate_round = 0
         self.debate_order: list[str] = []
         self.veto_factions: set[str] = set()
-        self.llm = LLMClient()
+        self.llm = llm if llm is not None else LLMClient()
 
     # ---- Phase control ----
 
