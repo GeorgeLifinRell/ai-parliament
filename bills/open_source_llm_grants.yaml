@@ -1,0 +1,26 @@
+title: "Open-Source LLM Infrastructure Grant Programme"
+proposal: |
+  Establish a £50M grant programme to fund open-source large language model
+  infrastructure, including:
+  - Compute subsidies for academic research groups
+  - Reproducibility requirements (all funded models must be publicly released)
+  - Priority for safety and alignment research
+
+assumptions:
+  - Open models accelerate safety research
+  - Academic groups can productively use compute subsidies
+  - Release requirements will not deter applicants
+
+intended_outcomes:
+  - Reduce dependency on closed, proprietary frontier models
+  - Accelerate AI safety research through open experimentation
+  - Build a diverse ecosystem of well-understood models
+
+known_risks:
+  - Open release of capable models raises misuse concerns
+  - Compute subsidies may be captured by well-resourced groups
+  - Reproducibility requirements may slow research cycles
+
+unknowns:
+  - Whether open models can close the capability gap with proprietary ones
+  - How dual-use risks evolve as open models become more capable

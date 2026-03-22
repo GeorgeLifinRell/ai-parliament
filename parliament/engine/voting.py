@@ -23,6 +23,11 @@ class VotingEngine:
         reject_weight = 0.0
         abstain_weight = 0.0
         vetoed_by: list[str] = []
+        coalitions: dict[str, list[str]] = {
+            VoteChoice.APPROVE.value: [],
+            VoteChoice.REJECT.value: [],
+            VoteChoice.ABSTAIN.value: [],
+        }
 
         for vote in votes:
             # ---- Legitimacy checks ----
@@ -37,6 +42,9 @@ class VotingEngine:
 
             seen_factions.add(vote.faction)
 
+            # ---- Coalition tracking ----
+            coalitions[vote.choice.value].append(vote.faction)
+
             # ---- Veto logic ----
             if vote.faction in self.veto_factions and vote.choice == VoteChoice.REJECT:
                 vetoed_by.append(vote.faction)
@@ -48,6 +56,9 @@ class VotingEngine:
                 reject_weight += vote.weight
             elif vote.choice == VoteChoice.ABSTAIN:
                 abstain_weight += vote.weight
+
+        # Remove empty coalition entries for a cleaner record
+        coalitions = {k: v for k, v in coalitions.items() if v}
 
         # ---- Final decision ----
         if vetoed_by:
@@ -71,6 +82,7 @@ class VotingEngine:
             total_abstain_weight=abstain_weight,
             votes=votes,
             vetoed_by=vetoed_by,
+            coalitions=coalitions,
             decided_at=datetime.now(),
             decision_summary=summary
         )

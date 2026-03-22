@@ -1,9 +1,20 @@
 """
 Test Speaker's veto power assignment functionality
 """
+from unittest.mock import MagicMock
 from uuid import uuid4
 from parliament.core.bill import Bill, BillStatus
 from parliament.procedure.speaker import Speaker
+
+
+def _make_speaker(bill: Bill) -> Speaker:
+    """Return a Speaker with a mocked LLM so no network calls are made."""
+    mock_llm = MagicMock()
+    mock_llm.generate_json.return_value = {
+        "factions_with_veto": [],
+        "reasoning": "mocked",
+    }
+    return Speaker(bill, llm=mock_llm)
 
 
 def test_speaker_veto_power_assignment():
@@ -19,7 +30,7 @@ def test_speaker_veto_power_assignment():
         status=BillStatus.DRAFT
     )
     
-    speaker = Speaker(bill)
+    speaker = _make_speaker(bill)
     
     # Initially no veto factions
     assert len(speaker.get_veto_factions()) == 0
@@ -55,7 +66,7 @@ def test_veto_power_returns_copy():
         status=BillStatus.DRAFT
     )
     
-    speaker = Speaker(bill)
+    speaker = _make_speaker(bill)
     speaker.assign_veto_power("Safety")
     
     # Get veto factions and try to modify it
@@ -80,7 +91,7 @@ def test_duplicate_veto_assignment():
         status=BillStatus.DRAFT
     )
     
-    speaker = Speaker(bill)
+    speaker = _make_speaker(bill)
     
     # Assign same faction multiple times
     speaker.assign_veto_power("Safety")

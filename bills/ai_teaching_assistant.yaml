@@ -1,0 +1,23 @@
+title: "Deploy AI Teaching Assistant for University"
+proposal: |
+  Deploy a Gemini-based AI assistant for all students to:
+  - Answer academic questions 24/7
+  - Help with assignments
+  - Provide study guidance
+
+assumptions:
+  - Students will not overly depend on the system
+  - AI answers will be mostly accurate
+
+intended_outcomes:
+  - Reduce load on professors
+  - Improve learning access
+  - Provide 24/7 support
+
+known_risks:
+  - Hallucinated answers
+  - Academic integrity issues
+
+unknowns:
+  - Long-term student dependency
+  - Equity of access
